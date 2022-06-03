@@ -1,6 +1,11 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  reactStrictMode: true,
-}
+const withSvgr = require("@newhighsco/next-plugin-svgr");
 
-module.exports = nextConfig
+/** @type {import('next').NextConfig} */
+const nextConfig = withSvgr({
+  reactStrictMode: true,
+  env: {
+    PORT: process.env.PORT ?? undefined,
+  },
+});
+
+module.exports = nextConfig;
