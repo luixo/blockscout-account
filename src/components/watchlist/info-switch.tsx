@@ -1,4 +1,5 @@
 import React from "react";
+import { WithId } from "mongodb";
 import { useToast } from "../../hooks/use-toast";
 import { WatchlistElement } from "../../types/watchlist";
 import { modifyWatchlistElement } from "../../utils/queries";
@@ -24,7 +25,7 @@ export const InfoSwitch: React.FC<Props> = ({ element }) => {
       onError: (error, { address }, prevElement) => {
         toast.error(error.message);
         modifyWatchlistElement(trpcContext, address, (element) =>
-          prevElement ? (prevElement as WatchlistElement) : element
+          prevElement ? (prevElement as WithId<WatchlistElement>) : element
         );
       },
     }

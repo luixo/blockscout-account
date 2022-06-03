@@ -1,4 +1,5 @@
 import React from "react";
+import { WithId } from "mongodb";
 import { WatchlistElement } from "../../types/watchlist";
 import { modifyWatchlistElement } from "../../utils/queries";
 import { trpc } from "../../utils/trpc";
@@ -31,7 +32,7 @@ export const InfoButtons: React.FC<Props> = ({ element }) => {
     onError: (error, { address }, prevElement) => {
       toast.error(error.message);
       modifyWatchlistElement(trpcContext, address, (element) =>
-        prevElement ? (prevElement as WatchlistElement) : element
+        prevElement ? (prevElement as WithId<WatchlistElement>) : element
       );
     },
   });

@@ -1,11 +1,19 @@
 import * as trpc from "@trpc/server";
 import { TRPCError } from "@trpc/server";
+import { Collection } from "mongodb";
 import { z } from "zod";
-import { generateWatchElement, generateWatchElements } from "./generator";
+import { withMongo } from "../db/mongo";
+import { WatchlistElement } from "../types/watchlist";
+import { generateWatchElement } from "./faker";
 import { watchlistElementValidation } from "./validations";
 
-const watchlistDB = {
-  elements: generateWatchElements(),
+const withWatchlistCollection = <T>(
+  handler: (collection: Collection<WatchlistElement>) => Promise<T>
+) => {
+  return withMongo(async (db) => {
+    const collection = db.collection<WatchlistElement>("watchlist");
+    return handler(collection);
+  });
 };
 
 export const router = trpc
@@ -13,79 +21,83 @@ export const router = trpc
   .query("get", {
     input: z.undefined(),
     resolve: async () => {
-      return watchlistDB.elements;
+      return withWatchlistCollection((collection) =>
+        collection.find().toArray()
+      );
     },
   })
   .mutation("put", {
     input: watchlistElementValidation,
     resolve: async ({ input: { address, ...input } }) => {
       const lowercaseAddress = address.toLowerCase();
-      const duplicateElement = watchlistDB.elements.find(
-        (element) => element.address === lowercaseAddress
+      const duplicateElements = await withWatchlistCollection(
+        async (collection) =>
+          collection.find({ address: lowercaseAddress }).toArray()
       );
-      if (duplicateElement) {
+      if (duplicateElements.length !== 0) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: `Address ${address} is already tracked`,
         });
       }
-      watchlistDB.elements.push(generateWatchElement({ address, ...input }));
+      await withWatchlistCollection(async (collection) =>
+        collection.insertOne(
+          generateWatchElement({ address: lowercaseAddress, ...input })
+        )
+      );
     },
   })
   .mutation("update", {
     input: watchlistElementValidation,
     resolve: async ({ input: { address, ...input } }) => {
       const lowercaseAddress = address.toLowerCase();
-      const matchedElementIndex = watchlistDB.elements.findIndex(
-        (element) => element.address === lowercaseAddress
+      const result = await withWatchlistCollection(async (collection) =>
+        collection.updateOne(
+          { address: lowercaseAddress },
+          {
+            $set: input,
+          }
+        )
       );
-      if (matchedElementIndex === -1) {
+      if (result.matchedCount === 0) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: `Address ${address} not found`,
+          message: `Address ${address} is not being watched`,
         });
       }
-      watchlistDB.elements[matchedElementIndex] = {
-        ...watchlistDB.elements[matchedElementIndex],
-        ...input,
-      };
     },
   })
   .mutation("switch-mail-notification", {
     input: z.strictObject({ address: z.string() }),
-    resolve: async ({ input: { address, ...input } }) => {
+    resolve: async ({ input: { address } }) => {
       const lowercaseAddress = address.toLowerCase();
-      const matchedElementIndex = watchlistDB.elements.findIndex(
-        (element) => element.address === lowercaseAddress
+      const result = await withWatchlistCollection(async (collection) =>
+        collection.updateOne({ address: lowercaseAddress }, [
+          {
+            $set: { emailNotification: { $not: "$emailNotification" } },
+          },
+        ])
       );
-      if (matchedElementIndex === -1) {
+      if (result.matchedCount === 0) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: `Address ${address} not found`,
+          message: `Address ${address} is not being watched`,
         });
       }
-      watchlistDB.elements[matchedElementIndex] = {
-        ...watchlistDB.elements[matchedElementIndex],
-        emailNotification:
-          !watchlistDB.elements[matchedElementIndex].emailNotification,
-      };
     },
   })
   .mutation("delete", {
     input: z.strictObject({ address: z.string() }),
-    resolve: async ({ input }) => {
-      const lowercaseAddress = input.address.toLowerCase();
-      const matchedElement = watchlistDB.elements.find(
-        (element) => element.address === lowercaseAddress
+    resolve: async ({ input: { address } }) => {
+      const lowercaseAddress = address.toLowerCase();
+      const result = await withWatchlistCollection(async (collection) =>
+        collection.deleteOne({ address: lowercaseAddress })
       );
-      if (!matchedElement) {
+      if (result.deletedCount === 0) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: `Address ${input.address} not found`,
+          message: `Address ${address} is not being watched`,
         });
       }
-      watchlistDB.elements = watchlistDB.elements.filter(
-        (element) => element !== matchedElement
-      );
     },
   });

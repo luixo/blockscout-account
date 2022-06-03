@@ -1,5 +1,6 @@
 import React from "react";
 import { SubmitHandler } from "react-hook-form";
+import { WithId } from "mongodb";
 import { trpc } from "../../utils/trpc";
 import { WatchlistForm } from "../../hooks/use-watchlist-form";
 import { WatchlistElement } from "../../types/watchlist";
@@ -24,7 +25,7 @@ export const EditAddressPopup: React.FC<Props> = ({ element, onDone }) => {
     onError: (error, { address }, prevElement) => {
       toast.error(error.message);
       modifyWatchlistElement(trpcContext, address, (element) =>
-        prevElement ? (prevElement as WatchlistElement) : element
+        prevElement ? (prevElement as WithId<WatchlistElement>) : element
       );
     },
     onSuccess: onDone,
