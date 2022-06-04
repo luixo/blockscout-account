@@ -41,7 +41,6 @@ const LINKS: Link[] = [
     href: "/custom-abi",
     name: "Custom ABI",
     IconComponent: CustomAbiIcon,
-    disabled: true,
   },
 ];
 

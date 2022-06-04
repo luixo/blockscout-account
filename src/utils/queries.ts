@@ -1,6 +1,7 @@
 import { TRPCContextState } from "@trpc/react/dist/declarations/src/internals/context";
 import { AppRouter } from "../router";
 import { ApiKey } from "../types/api-keys";
+import { CustomAbi } from "../types/custom-abi";
 import { PrivateTagElement } from "../types/tags";
 import { WatchlistElement } from "../types/watchlist";
 
@@ -84,6 +85,24 @@ export const modifyApiKey = (
     const modificationResult = modifyElements(
       prevElements,
       (element) => element.key === key,
+      modifier
+    );
+    prevElement = modificationResult.prevElement;
+    return modificationResult.nextElements;
+  });
+  return prevElement;
+};
+
+export const modifyCustomAbi = (
+  trpcContext: TRPCContextState<AppRouter, unknown>,
+  id: string,
+  modifier: (data: CustomAbi | undefined) => CustomAbi | undefined
+) => {
+  let prevElement: CustomAbi | undefined;
+  trpcContext.setQueryData(["custom-abi.get"], (prevElements = []) => {
+    const modificationResult = modifyElements(
+      prevElements,
+      (element) => element._id === id,
       modifier
     );
     prevElement = modificationResult.prevElement;

@@ -27,3 +27,18 @@ export const apiKeyValidation = z.strictObject({
   key: z.string().uuid(),
   name: z.string(),
 });
+
+export const customAbiValidation = z.strictObject({
+  _id: z.string(),
+  name: z.string(),
+  address: z.string(),
+  abi: z.string().refine((input) => {
+    // TODO: proper ABI validation
+    try {
+      JSON.parse(input);
+      return true;
+    } catch {
+      return false;
+    }
+  }),
+});
