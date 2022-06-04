@@ -22,3 +22,8 @@ export const privateTagValidation = z.strictObject({
   value: z.string(),
   type: privateTagType,
 });
+
+export const apiKeyValidation = z.strictObject({
+  key: z.string().uuid(),
+  name: z.string(),
+});

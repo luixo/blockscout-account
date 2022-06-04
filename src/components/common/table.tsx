@@ -37,7 +37,7 @@ type Props = {
 };
 
 export const Table: React.FC<Props> = ({ header, rows }) => {
-  const columns = rows[0]?.cells.length ?? 1;
+  const columns = Math.max(rows[0]?.cells.length ?? 1, header.length);
   return (
     <Wrapper>
       <thead>

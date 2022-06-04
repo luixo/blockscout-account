@@ -36,7 +36,6 @@ const LINKS: Link[] = [
     href: "/api-keys",
     name: "API Keys",
     IconComponent: ApiKeysIcon,
-    disabled: true,
   },
   {
     href: "/custom-abi",

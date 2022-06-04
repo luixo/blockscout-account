@@ -15,7 +15,7 @@ const Wrapper = styled("div", {
   justifyContent: "center",
 
   variants: {
-    validity: {
+    valid: {
       true: {
         color: "#04795B",
         borderColor: "#04795B",
@@ -25,7 +25,23 @@ const Wrapper = styled("div", {
         borderColor: "#EB235F",
       },
     },
+
+    disabled: {
+      true: {
+        backgroundColor: "#C4C4C4",
+      },
+    },
   },
+
+  compoundVariants: [
+    {
+      valid: true,
+      disabled: true,
+      css: {
+        backgroundColor: "rgba(4, 121, 91, 0.1)",
+      },
+    },
+  ],
 
   "& + &": {
     marginTop: 12,
@@ -50,17 +66,19 @@ const InputWrapper = styled("input", {
 });
 
 type Props = {
-  inputProps: React.HTMLProps<HTMLInputElement>;
+  inputProps?: React.HTMLProps<HTMLInputElement>;
   value?: string;
   label?: string;
   valid?: boolean;
+  disabled?: boolean;
 };
 
 export const Input: React.FC<Props> = ({
   inputProps,
   value,
   valid,
-  label: description,
+  label,
+  disabled,
 }) => {
   const inputRef = React.useRef<HTMLInputElement | null>();
   const focusInput = React.useCallback(() => {
@@ -71,15 +89,23 @@ export const Input: React.FC<Props> = ({
     input.focus();
   }, [inputRef]);
   return (
-    <Wrapper validity={value ? valid : undefined} onClick={focusInput}>
-      {description && value ? <Label>{description}</Label> : null}
+    <Wrapper
+      valid={value ? valid : undefined}
+      onClick={focusInput}
+      disabled={disabled}
+    >
+      {label && value ? <Label>{label}</Label> : null}
       <InputWrapper
         {...inputProps}
-        placeholder={description}
+        placeholder={label}
+        disabled={disabled}
         ref={(e) => {
-          (inputProps.ref as React.RefCallback<HTMLInputElement>)(e);
+          if (inputProps) {
+            (inputProps.ref as React.RefCallback<HTMLInputElement>)(e);
+          }
           inputRef.current = e;
         }}
+        value={value}
       />
     </Wrapper>
   );

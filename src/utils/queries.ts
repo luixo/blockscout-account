@@ -1,5 +1,6 @@
 import { TRPCContextState } from "@trpc/react/dist/declarations/src/internals/context";
 import { AppRouter } from "../router";
+import { ApiKey } from "../types/api-keys";
 import { PrivateTagElement } from "../types/tags";
 import { WatchlistElement } from "../types/watchlist";
 
@@ -70,5 +71,23 @@ export const modifyPrivateTag = (
       return modificationResult.nextElements;
     }
   );
+  return prevElement;
+};
+
+export const modifyApiKey = (
+  trpcContext: TRPCContextState<AppRouter, unknown>,
+  key: string,
+  modifier: (data: ApiKey | undefined) => ApiKey | undefined
+) => {
+  let prevElement: ApiKey | undefined;
+  trpcContext.setQueryData(["api-keys.get"], (prevElements = []) => {
+    const modificationResult = modifyElements(
+      prevElements,
+      (element) => element.key === key,
+      modifier
+    );
+    prevElement = modificationResult.prevElement;
+    return modificationResult.nextElements;
+  });
   return prevElement;
 };

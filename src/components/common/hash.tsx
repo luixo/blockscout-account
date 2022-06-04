@@ -1,6 +1,6 @@
 import React from "react";
 import { styled } from "../../styles";
-import { CopyToClipboard } from "../common/copy-to-clipboard";
+import { Copyable } from "./copyable";
 
 const Wrapper = styled("div", {
   display: "flex",
@@ -15,7 +15,7 @@ type Props = {
 export const Hash: React.FC<Props> = ({ value }) => {
   return (
     <Wrapper>
-      {value} <CopyToClipboard text={value} />
+      <Copyable value={value} />
     </Wrapper>
   );
 };

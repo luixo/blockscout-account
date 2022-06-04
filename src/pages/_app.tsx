@@ -15,7 +15,7 @@ const globalStyles = globalCss({
   },
 
   a: {
-    color: "inherit",
+    color: "#3f68c0",
     textDecoration: "none",
   },
 

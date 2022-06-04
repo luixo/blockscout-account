@@ -3,11 +3,13 @@ import { NodeHTTPCreateContextFnOptions } from "@trpc/server/dist/declarations/s
 import { NextApiRequest, NextApiResponse } from "next";
 import { router as watchlistRouter } from "./watchlist";
 import { router as privateTagsRouter } from "./private-tags";
+import { router as apiKeysRouter } from "./api-keys";
 
 export const appRouter = trpc
   .router<Context>()
   .merge("watchlist.", watchlistRouter)
-  .merge("private-tags.", privateTagsRouter);
+  .merge("private-tags.", privateTagsRouter)
+  .merge("api-keys.", apiKeysRouter);
 
 export type AppRouter = typeof appRouter;
 export type Context = NodeHTTPCreateContextFnOptions<
