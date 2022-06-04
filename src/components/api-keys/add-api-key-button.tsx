@@ -6,6 +6,7 @@ import { ApiKeyFormView } from "./api-key-form";
 import { trpc } from "../../utils/trpc";
 import { Button } from "../common/button";
 import { Popup } from "../common/popup";
+import { modifyApiKey } from "../../utils/queries";
 
 type Props = {
   buttonDisabled?: boolean;
@@ -15,8 +16,29 @@ export const AddApiKeyButton: React.FC<Props> = ({ buttonDisabled }) => {
   const toast = useToast();
   const trpcContext = trpc.useContext();
   const addApiKeyMutation = trpc.useMutation(["api-keys.put"], {
-    onError: (error) => toast.error(error.message),
-    onSuccess: () => trpcContext.invalidateQueries(["api-keys.get"]),
+    onMutate: (variables) => {
+      const temporaryKey = "loading..";
+      modifyApiKey(trpcContext, temporaryKey, () => ({
+        ...variables,
+        key: temporaryKey,
+      }));
+      return temporaryKey;
+    },
+    onError: (error, _variables, temporaryKey: string | undefined) => {
+      toast.error(error.message);
+      if (!temporaryKey) {
+        return;
+      }
+      modifyApiKey(trpcContext, temporaryKey, () => undefined);
+    },
+    onSuccess: (actualKey, _variables, temporaryKey: string | undefined) => {
+      if (!temporaryKey) {
+        return;
+      }
+      modifyApiKey(trpcContext, temporaryKey, (element) =>
+        element ? { ...element, key: actualKey } : element
+      );
+    },
   });
   const onSubmit =
     (close: () => void): SubmitHandler<ApiKeyForm> =>

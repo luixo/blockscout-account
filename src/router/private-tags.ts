@@ -49,9 +49,14 @@ export const router = trpc
           } ${value} is already tracked`,
         });
       }
-      await withPrivateTagCollection(async (collection) =>
-        collection.insertOne({ _id: v4(), value: lowercaseValue, ...input })
-      );
+      return withPrivateTagCollection(async (collection) => {
+        const result = await collection.insertOne({
+          _id: v4(),
+          value: lowercaseValue,
+          ...input,
+        });
+        return result.insertedId;
+      });
     },
   })
   .mutation("update", {

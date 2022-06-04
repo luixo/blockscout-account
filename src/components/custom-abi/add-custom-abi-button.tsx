@@ -6,6 +6,7 @@ import { CustomAbiFormView } from "./custom-abi-form";
 import { trpc } from "../../utils/trpc";
 import { Button } from "../common/button";
 import { Popup } from "../common/popup";
+import { modifyCustomAbi } from "../../utils/queries";
 
 type Props = {
   buttonDisabled?: boolean;
@@ -15,8 +16,29 @@ export const AddCustomAbiButton: React.FC<Props> = ({ buttonDisabled }) => {
   const toast = useToast();
   const trpcContext = trpc.useContext();
   const addCustomAbiMutation = trpc.useMutation(["custom-abi.put"], {
-    onError: (error) => toast.error(error.message),
-    onSuccess: () => trpcContext.invalidateQueries(["custom-abi.get"]),
+    onMutate: (variables) => {
+      const temporaryId = Math.random().toString();
+      modifyCustomAbi(trpcContext, temporaryId, () => ({
+        ...variables,
+        _id: temporaryId,
+      }));
+      return temporaryId;
+    },
+    onError: (error, _variables, temporaryId: string | undefined) => {
+      toast.error(error.message);
+      if (!temporaryId) {
+        return;
+      }
+      modifyCustomAbi(trpcContext, temporaryId, () => undefined);
+    },
+    onSuccess: (actualId, _variables, temporaryId: string | undefined) => {
+      if (!temporaryId) {
+        return;
+      }
+      modifyCustomAbi(trpcContext, temporaryId, (element) =>
+        element ? { ...element, _id: actualId } : element
+      );
+    },
   });
   const onSubmit =
     (close: () => void): SubmitHandler<CustomAbiForm> =>
