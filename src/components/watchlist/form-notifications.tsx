@@ -1,6 +1,6 @@
 import React from "react";
 import { UseFormReturn } from "react-hook-form";
-import { WatchlistForm } from "../../hooks/use-watchlist-form";
+import { WatchlistForm } from "../../types/watchlist";
 import { styled } from "../../styles";
 import { Checkbox } from "../common/checkbox";
 

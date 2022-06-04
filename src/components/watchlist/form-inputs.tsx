@@ -1,8 +1,9 @@
 import React from "react";
 import { UseFormReturn } from "react-hook-form";
-import { WatchlistForm } from "../../hooks/use-watchlist-form";
+import { WatchlistForm } from "../../types/watchlist";
 import { styled } from "../../styles";
 import { Input } from "../common/input";
+import { ethereumAddressRegexp } from "../../utils/validation";
 
 const Wrapper = styled("div", {
   marginVertical: 24,
@@ -18,7 +19,7 @@ export const FormInputs: React.FC<Props> = ({ form }) => {
       <Input
         inputProps={form.register("address", {
           required: true,
-          pattern: /^0x[a-fA-F0-9]{40}$/,
+          pattern: ethereumAddressRegexp,
         })}
         label="Address (0x...)"
         value={form.watch("address")}

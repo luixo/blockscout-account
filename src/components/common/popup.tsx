@@ -18,7 +18,7 @@ const Wrapper = styled("div", {
 
 type PopupProps = React.ComponentProps<typeof ReactPopup>;
 
-type Props = {
+export type Props = {
   trigger: PopupProps["trigger"];
   children:
     | PopupProps["children"]

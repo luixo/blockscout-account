@@ -1,4 +1,5 @@
 import { withTRPC } from "@trpc/next";
+import { ReactQueryDevtools } from "react-query/devtools";
 import { AppType } from "next/dist/shared/lib/utils";
 import React from "react";
 import { Toaster } from "react-hot-toast";
@@ -28,6 +29,7 @@ const App: AppType = ({ Component, pageProps }) => {
   return (
     <>
       <Component {...pageProps} />
+      <ReactQueryDevtools />
       <Toaster />
     </>
   );

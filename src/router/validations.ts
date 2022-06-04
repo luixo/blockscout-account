@@ -10,3 +10,15 @@ export const watchlistElementValidation = z.strictObject({
     nfts: z.strictObject({ incoming: z.boolean(), outgoing: z.boolean() }),
   }),
 });
+
+export const privateTagType = z.union([
+  z.literal("address"),
+  z.literal("transaction"),
+]);
+
+export const privateTagValidation = z.strictObject({
+  _id: z.string(),
+  tag: z.string(),
+  value: z.string(),
+  type: privateTagType,
+});

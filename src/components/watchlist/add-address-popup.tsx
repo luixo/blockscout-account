@@ -1,39 +1,33 @@
 import React from "react";
 import { SubmitHandler } from "react-hook-form";
 import { trpc } from "../../utils/trpc";
-import { WatchlistForm } from "../../hooks/use-watchlist-form";
+import { WatchlistForm } from "../../types/watchlist";
 import { AddressPopup } from "./address-popup";
 import { useToast } from "../../hooks/use-toast";
 
 type Props = {
-  onDone: () => void;
+  closePopup: () => void;
 };
 
-export const AddAddressPopup: React.FC<Props> = ({ onDone }) => {
+export const AddAddressPopup: React.FC<Props> = ({ closePopup }) => {
   const toast = useToast();
   const trpcContext = trpc.useContext();
   const addAddressMutation = trpc.useMutation(["watchlist.put"], {
-    onError: (error) => {
-      toast.error(error.message);
-    },
-    onSuccess: () => {
-      trpcContext.invalidateQueries(["watchlist.get"]);
-      onDone();
-    },
+    onError: (error) => toast.error(error.message),
+    onSuccess: () => trpcContext.invalidateQueries(["watchlist.get"]),
   });
-  const onSubmit: SubmitHandler<WatchlistForm> = (data) => {
-    addAddressMutation.mutate(data);
-  };
+  const onSubmit: SubmitHandler<WatchlistForm> = React.useCallback(
+    async (data) => {
+      await addAddressMutation.mutateAsync(data);
+      closePopup();
+    },
+    [closePopup, addAddressMutation]
+  );
 
   return (
     <AddressPopup
       title="New Address to Watchlist"
-      prefix={
-        <div>
-          An Email notification can be sent to you when an address on your watch
-          list sends or receives any transactions.
-        </div>
-      }
+      hint="An Email notification can be sent to you when an address on your watch list sends or receives any transactions."
       onSubmit={onSubmit}
       defaultValues={{
         address: "",

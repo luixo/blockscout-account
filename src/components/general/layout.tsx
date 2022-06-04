@@ -49,6 +49,7 @@ const LogoWrapper = styled("div", {
 
 const Main = styled("main", {
   marginLeft: "2rem",
+  width: "100%",
 });
 
 type Props = {

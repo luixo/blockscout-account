@@ -5,8 +5,8 @@ import { FiatAmountView } from "../fiat-amount";
 import { InfoLine } from "./info-line";
 import { ReactComponent as TokensIcon } from "../../icons/tokens.svg";
 import { ReactComponent as WalletIcon } from "../../icons/wallet.svg";
-import { CopyToClipboard } from "../common/copy-to-clipboard";
 import { WatchlistElement } from "../../types/watchlist";
+import { Hash } from "../common/hash";
 
 const Wrapper = styled("div", {
   display: "flex",
@@ -18,12 +18,6 @@ const Info = styled("div", {
   "& > *:not(:first-child)": {
     marginTop: 8,
   },
-});
-
-const Address = styled("div", {
-  display: "flex",
-  alignItems: "center",
-  color: "#3F68C0",
 });
 
 const Secondary = styled("span", {
@@ -41,9 +35,7 @@ export const InfoAddress: React.FC<Props> = ({
     <Wrapper>
       <Avatar iconUrl={iconUrl} size={50} />
       <Info>
-        <Address>
-          {address} <CopyToClipboard text={address} />
-        </Address>
+        <Hash value={address} />
         <InfoLine icon={{ url: "/xdai.png" }}>
           <span>
             {baseToken.amount} {baseToken.tokenName}{" "}

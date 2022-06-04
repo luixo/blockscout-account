@@ -25,7 +25,6 @@ const LINKS: Link[] = [
     href: "/private-tags",
     name: "Private tags",
     IconComponent: PrivateTagsIcon,
-    disabled: true,
   },
   {
     href: "/public-tags",
@@ -117,22 +116,28 @@ export const Menu: React.FC = () => {
     <Wrapper>
       <Header>Watch List & Notes</Header>
       <List>
-        {LINKS.map((link) => (
-          <ListElement
-            key={link.href}
-            active={router.pathname.startsWith(link.href)}
-            disabled={!!link.disabled}
-          >
-            <ListImage>
-              <link.IconComponent />
-            </ListImage>
-            {link.disabled ? (
-              link.name
-            ) : (
-              <Link href={link.href}>{link.name}</Link>
-            )}
-          </ListElement>
-        ))}
+        {LINKS.map((link) => {
+          const content = (
+            <ListElement
+              key={link.href}
+              active={router.pathname.startsWith(link.href)}
+              disabled={!!link.disabled}
+            >
+              <ListImage>
+                <link.IconComponent />
+              </ListImage>
+              {link.name}
+            </ListElement>
+          );
+          if (link.disabled) {
+            return content;
+          }
+          return (
+            <Link key={link.href} href={link.href}>
+              {content}
+            </Link>
+          );
+        })}
       </List>
     </Wrapper>
   );

@@ -26,3 +26,14 @@ export type WatchlistElement = {
   };
   emailNotification: boolean;
 };
+
+export type WatchlistForm = {
+  address: string;
+  tag?: string;
+  assetsNotifications: {
+    xdai: { incoming: boolean; outgoing: boolean };
+    fts: { incoming: boolean; outgoing: boolean };
+    nfts: { incoming: boolean; outgoing: boolean };
+  };
+  emailNotification: boolean;
+};

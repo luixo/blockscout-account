@@ -21,9 +21,10 @@ export const router = trpc
   .query("get", {
     input: z.undefined(),
     resolve: async () => {
-      return withWatchlistCollection((collection) =>
+      const elements = await withWatchlistCollection((collection) =>
         collection.find().toArray()
       );
+      return elements.map(({ _id, ...element }) => element);
     },
   })
   .mutation("put", {

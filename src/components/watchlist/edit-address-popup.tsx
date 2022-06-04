@@ -1,9 +1,7 @@
 import React from "react";
 import { SubmitHandler } from "react-hook-form";
-import { WithId } from "mongodb";
 import { trpc } from "../../utils/trpc";
-import { WatchlistForm } from "../../hooks/use-watchlist-form";
-import { WatchlistElement } from "../../types/watchlist";
+import { WatchlistElement, WatchlistForm } from "../../types/watchlist";
 import { modifyWatchlistElement } from "../../utils/queries";
 import { AddressPopup } from "./address-popup";
 import { useToast } from "../../hooks/use-toast";
@@ -18,21 +16,30 @@ export const EditAddressPopup: React.FC<Props> = ({ element, onDone }) => {
   const trpcContext = trpc.useContext();
   const editAddressMutation = trpc.useMutation(["watchlist.update"], {
     onMutate: (update) =>
-      modifyWatchlistElement(trpcContext, update.address, (element) => ({
-        ...element,
-        ...update,
-      })),
+      modifyWatchlistElement(trpcContext, update.address, (element) =>
+        element
+          ? {
+              ...element,
+              ...update,
+            }
+          : element
+      ),
     onError: (error, { address }, prevElement) => {
       toast.error(error.message);
       modifyWatchlistElement(trpcContext, address, (element) =>
-        prevElement ? (prevElement as WithId<WatchlistElement>) : element
+        prevElement ? (prevElement as WatchlistElement) : element
       );
     },
-    onSuccess: onDone,
   });
-  const onSubmit: SubmitHandler<WatchlistForm> = (data) => {
-    editAddressMutation.mutate(data);
-  };
+  const onSubmit: SubmitHandler<WatchlistForm> = React.useCallback(
+    async (data) => {
+      try {
+        await editAddressMutation.mutateAsync(data);
+        onDone();
+      } catch {}
+    },
+    [editAddressMutation, onDone]
+  );
 
   return (
     <AddressPopup
