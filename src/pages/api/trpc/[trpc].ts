@@ -12,6 +12,7 @@ const handler: NextApiHandler = (req, res) => {
     const origin = req.headers.origin || "*";
     res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Access-Control-Allow-Methods", "GET,POST");
+    res.setHeader("Access-Control-Allow-Headers", "*");
     res.setHeader("Access-Control-Max-Age", 86400);
     return res.send("OK");
   }
